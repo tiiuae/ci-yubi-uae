@@ -13,9 +13,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     pkgconf libssl-dev opensc \
     && rm -rf /var/lib/apt/lists/*
     
-RUN apt-get update
-RUN apt-get install -y apt-utils
-RUN apt-get install -y libpcsclite1 libcurl4 libusb-1.0-0 libedit2                                                                                                                                                                    
+RUN DEBIAN_FRONTEND=noninteractive apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y apt-utils
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libpcsclite1 libcurl4 libusb-1.0-0 libedit2
+
 # Set working directory
 WORKDIR /app
 
