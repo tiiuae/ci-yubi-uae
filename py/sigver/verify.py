@@ -1,85 +1,88 @@
 # SPDX-FileCopyrightText: 2023 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
+""" Signature Verification Script """
+import argparse
+
+import logging
 
 import sys
+import os
 
-from azure.identity import DefaultAzureCredential
-from azure.keyvault.certificates import CertificateClient
-from azure.keyvault.keys import KeyClient
-from azure.keyvault.keys.crypto import CryptographyClient, SignatureAlgorithm
+import json
+import base64
+import requests
 
 from sha256tree import sha256sum
 
-KEY_VAULT_URL = "https://ghaf-devenv-ca.vault.azure.net/"
-CERTIFICATE_NAME = "."
+LOG = logging.getLogger(os.path.abspath(__file__))
 
+
+# Default certificate to be used if no argument is given
+CERTIFICATE_NAME="INT-Ghaf-Devenv-Common"
+
+# Azure Function (verify-signature) URL
+URL = "https://ghaf-devenv-microsign-aleksandrtserepo-app.azurewebsites.net/api/verify-signature"
 
 def show_help():
+    """Show help messsage"""
     print(f"Usage: {sys.argv[0]} [options] ")
     print()
     print("Options:")
     print("          --path=<path>             = Path to verify")
-    print("          --cert=<certname>         = Name of the certificate to be used")
-    print("          --keyvault=<keyvault url> = URL of the keyvault")
+    print("          --cert=<certname>         = (optional) Name of the certificate to be used")
     print("          --sigfile=<filename>      = Signature filename")
     print("")
     sys.exit(0)
 
-
 def main():
-    args = sys.argv[:]
+    """Send REST API request to VerifySignature Azure Function"""
     path = "."
-    key_vault_url = KEY_VAULT_URL
     certificate_name = CERTIFICATE_NAME
     sigfile = "signature.bin"
 
-    args.pop(0)
+    parser = argparse.ArgumentParser(description="Parse arguments")
+    parser.add_argument("--path", default=".",
+                        help="Specify the path. Default is current directory.")
+    parser.add_argument("--cert", default=CERTIFICATE_NAME, help="Specify the certificate name.")
+    parser.add_argument("--sigfile", default="signature.bin", help="Specify the signature file.")
 
-    while args and args[0].startswith("--"):
-        if args[0] == "--help":
-            show_help()
-        if args[0].startswith("--path="):
-            args[0] = args[0].removeprefix("--path=")
-            path = args[0]
-        elif args[0].startswith("--cert="):
-            args[0] = args[0].removeprefix("--cert=")
-            certificate_name = args[0]
-        elif args[0].startswith("--keyvault="):
-            args[0] = args[0].removeprefix("--keyvault=")
-            key_vault_url = args[0]
-        elif args[0].startswith("--sigfile="):
-            args[0] = args[0].removeprefix("--sigfile=")
-            sigfile = args[0]
-        else:
-            print(f"Invalid argument: {args[0]}", file=sys.stderr)
-            sys.exit(1)
+    args = parser.parse_args()
 
-        args.pop(0)
+    path=args.path
+    certificate_name = args.cert
+    sigfile = args.sigfile
 
-    credential = DefaultAzureCredential()
-
-    certificate_client = CertificateClient(
-        vault_url=key_vault_url, credential=credential
-    )
-    key_client = KeyClient(vault_url=key_vault_url, credential=credential)
-
-    certificate = certificate_client.get_certificate(certificate_name)
-
-    print(certificate.name)
-
-    key = key_client.get_key(certificate_name)
-
-    crypto_client = CryptographyClient(key, credential)
-
-    digest = sha256sum(path, 1024 * 1024, True)
+    digest = base64.b64encode(sha256sum(path, 1024 * 1024, True)).decode('utf-8')
+    if os.path.getsize(sigfile) != 64:
+        LOG.info("Wrong signature size!")
+        return -3
 
     with open(sigfile, "rb") as file:
-        signature = file.read()
+        sig = file.read()
 
-    result = crypto_client.verify(SignatureAlgorithm.es256, digest, signature)
-    print("Verification result: ", result.is_valid)
-    assert result.is_valid
+    signature = base64.b64encode(sig).decode('utf-8')
+
+    data = {
+        "certificateName": certificate_name, 
+        "Hash": digest,
+        "Signature": signature
+    }
+
+    headers = {"Content-Type": "application/json"}
+    LOG.info (json.dumps(data))
+
+    try:
+        response = requests.post(URL, headers=headers, data=json.dumps(data), timeout=20)
+
+        if response.status_code != 200:
+            LOG.error("Error: %s, Response: %s", response.status_code, response.text)
+            return -2
+        LOG.error("Signature verification result: %s", response.json())
+        return 0 if response.json().get('is_valid', False) else 1
+    except requests.exceptions.RequestException as e:
+        LOG.error("An error occurred while making the request: %s", str(e))
+        return -2
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
