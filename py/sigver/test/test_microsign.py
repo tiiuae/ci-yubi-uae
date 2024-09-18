@@ -6,7 +6,7 @@ import time
 import pytest
 
 # Constants for production and staging URLs
-STAGING_SLOT_URL = "https://ghaf-devenv-microsign-aleksandrtserepo-app.azurewebsites.net/api/verify-signature"
+STAGING_SLOT_URL = "https://ghaf-devenv-microsign-aleksandrtserepo-app.azurewebsites.net/api/verify-signature" # pylint: disable=line-too-long
 PRODUCTION_SLOT_URL = "https://ghaf-devenv-signverify.azurewebsites.net/api/verifysignature"
 
 # Test configuration
@@ -49,14 +49,14 @@ def run_test_with_retries(url, max_retries, sleep_interval):
     print(f"Test failed for {url} after {max_retries} retries.")
     return False
 
-def test_cold_start_scaling(retry_config):
+def test_cold_start_scaling(retry_config): # pylint: disable=redefined-outer-name
     """ Test case 1: Cold start and scaling test """
     success = run_test_with_retries(PRODUCTION_SLOT_URL,
                                     retry_config['max_retries'],
                                     retry_config['sleep_interval'])
     assert success, "Production slot failed the cold start/scaling test."
 
-def test_slot_verification(retry_config):
+def test_slot_verification(retry_config): # pylint: disable=redefined-outer-name
     """ Test case 2: Slot verification (both production and staging) """
     success_prod = run_test_with_retries(PRODUCTION_SLOT_URL,
                                          retry_config['max_retries'],

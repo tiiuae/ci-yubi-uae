@@ -9,7 +9,6 @@ import sys
 import os
 
 import json
-import base64
 import requests
 
 LOG = logging.getLogger(os.path.abspath(__file__))
@@ -30,14 +29,13 @@ def main():
     parser = argparse.ArgumentParser(description="Parse arguments")
     parser.add_argument("--url", default=URL, help="Microservice URL.")
 
-    
     args = parser.parse_args()
 
     url=args.url
 
     certificate_name = CERTIFICATE_NAME
     digest = "oHvFcUwrDx0TbFdPa2oSd5h43r++xeyx7ffMUTT5Dl8="
-    signature = "Alw/bIUjMP0iGUXLn9QU8DZ30sVApKx85qyYzCy/EysepzTgpD1HSY6jWfYyAI/cgsmHY8nUNkqfbiJ04IeSxg=="
+    signature = "Alw/bIUjMP0iGUXLn9QU8DZ30sVApKx85qyYzCy/EysepzTgpD1HSY6jWfYyAI/cgsmHY8nUNkqfbiJ04IeSxg==" # pylint: disable=line-too-long
     data = {
         "certificateName": certificate_name, 
         "Hash": digest,
