@@ -1,17 +1,17 @@
-#Signature Verification Script Documentation
+# Signature Verification Script Documentation
 
-##Overview
+## Overview
 
 The verify.py script verifies the authenticity of a digital signature by calling an Azure Function, which interacts with Azure Key Vault for the actual signature verification process. The result is provided in a JSON format, where the key is_valid indicates whether the signature is valid (true) or not (false).
 
-##Prerequisites
+## Prerequisites
 
 - python3 environment is required with requests module installed.
 - Azure Function is offering public access, thus no special access on cloud level is needed.
 
-##Usage
+## Usage
 
-###Command-line Parameters
+### Command-line Parameters
 
 The script accepts the following parameters:
 
@@ -33,7 +33,7 @@ The script accepts the following parameters:
         Usage:
         If your signature file has a different name or location, specify it using this argument.
 
-###Example Command
+### Example Command
 
 `python verify_signature.py --path=/path/to/your/file --cert=mycert --sigfile=custom_signature.bin`
 
@@ -61,6 +61,6 @@ or
 
 `{'is_valid': False, 'message': 'Signature verification result'}`
 
-##Conclusion
+## Conclusion
 
 This signature verification script allows you to securely verify digital signatures using certificates stored in Azure Key Vault. By providing the path to the file, the certificate name, and the signature file, you can quickly determine the validity of a signature in a standardized JSON format.
