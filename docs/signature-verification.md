@@ -35,7 +35,7 @@ The script accepts the following parameters:
 
 ### Example Command
 
-`python verify_signature.py --path=/path/to/your/file --cert=mycert --sigfile=custom_signature.bin`
+`python verify.py --path=/path/to/your/file --cert=mycert --sigfile=custom_signature.bin`
 
 In this example, the script will:
 
@@ -45,7 +45,7 @@ In this example, the script will:
 
 If the certificate name is omitted, the script will use the default INT-Ghaf-Devenv-Common certificate:
 
-`python verify_signature.py --path /path/to/your/file --sigfile custom_signature.bin`
+`python verify.py --path /path/to/your/file --sigfile custom_signature.bin`
 
 Output
 
