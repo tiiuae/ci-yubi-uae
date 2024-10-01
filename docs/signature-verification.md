@@ -61,6 +61,41 @@ or
 
 `{'is_valid': False, 'message': 'Signature verification result'}`
 
+## Usage on Ubuntu
+
+1. Ensure Python3 is installed: On most Ubuntu systems, Python3 is pre-installed. Verify by running:
+
+`python3 --version`
+
+If not, you can install it by running:
+
+`sudo apt-get install python3`
+
+2. Set up a Python virtual environment (recommended to avoid conflicts):
+
+`python3 -m venv verify-env
+source verify-env/bin/activate`
+
+3. Install required dependencies:
+
+`pip3 install requests`
+
+4. Run the script
+
+`python3 verify.py --path=<file_path> --sigfile=<signature_file>`
+
+Replace <file_path> and <signature_file> with the respective paths to your image and signature files.
+
+## Usage on Ghaf / Nix:
+
+If you are using Ghaf or Nix, you can utilize the flake to simplify the process. No need to manually set up environment:
+
+`nix run github:tiiuae/ci-yubi/bdb2dbf#verify -- --path=<file_path> --sigfile=<signature_file>`
+
+Replace <file_path> and <signature_file> with the respective paths to your image and signature files.
+
+The above command will handle everything, including environment setup.
+
 ## Conclusion
 
 This signature verification script allows you to securely verify digital signatures using certificates stored in Azure Key Vault. By providing the path to the file, the certificate name, and the signature file, you can quickly determine the validity of a signature in a standardized JSON format.
