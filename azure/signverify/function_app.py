@@ -10,8 +10,8 @@ import base64
 app = func.FunctionApp()
 
 key_vault_url = "https://ghaf-devenv-ca.vault.azure.net/"
-#credential = DefaultAzureCredential()
-#key_client = KeyClient(vault_url=key_vault_url, credential=credential)
+credential = DefaultAzureCredential()
+key_client = KeyClient(vault_url=key_vault_url, credential=credential)
 
 @app.route(route="VerifySignature", auth_level=func.AuthLevel.ANONYMOUS)
 def VerifySignature(req: func.HttpRequest) -> func.HttpResponse:
@@ -38,11 +38,10 @@ def VerifySignature(req: func.HttpRequest) -> func.HttpResponse:
         digest = base64.b64decode(b64hash_value)
 
         result = crypto_client.verify(SignatureAlgorithm.es256, digest, signature)
-
         logging.info ("Verification Result: "+str(result.is_valid))
 
         return func.HttpResponse(
-            body=json.dumps({'message':'Signature Verification Result', 'is_valid': True}),
+            body=json.dumps({'message':'Signature Verification Result', 'is_valid': result.is_valid}),
             mimetype="application/json",
             status_code=200
         )
