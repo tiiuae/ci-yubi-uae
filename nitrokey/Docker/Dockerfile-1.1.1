@@ -4,7 +4,6 @@ WORKDIR /app
 RUN mkdir /etc/nitrokey
 COPY p11nethsm.conf /etc/nitrokey/p11nethsm.conf
 COPY openssl.cnf /etc/nitrokey/openssl.cnf
-COPY vmlinuz-6.8.0-52-generic /app
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
@@ -19,8 +18,6 @@ RUN apt-get update && apt-get install -y \
     opensc libengine-pkcs11-openssl \
     build-essential
 
-#RUN wget https://github.com/Nitrokey/nethsm-pkcs11/releases/download/v1.5.0/nethsm-pkcs11-vv1.5.0-x86_64-debian.12.so
-#RUN cp nethsm-pkcs11-vv1.5.0-x86_64-debian.12.so /usr/lib/x86_64-linux-gnu/pkcs11/libnethsm_pkcs11.so
 
 # We need to rebuild the libnethsm_pkcs11.so to run on this Docker
 # So, install Rust toolchain, clone the source and build
