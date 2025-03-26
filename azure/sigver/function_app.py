@@ -30,7 +30,7 @@ def VerifySignature(req: func.HttpRequest) -> func.HttpResponse:
         b64hash_value = req_body['Hash']
         logging.info ("Req data: b64Signature: "+b64signature+" b64Hash: "+b64hash_value)
 
-        key_vault_url='https://'+keyvault+'.vault.azure.net/'
+        key_vault_url='https://'+keyvault+'/'
         
         key_client = KeyClient(vault_url=key_vault_url, credential=credential)
 
